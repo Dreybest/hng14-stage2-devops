@@ -146,31 +146,35 @@ jobs:
       - name: Push frontend image to local registry
         run: docker push localhost:5000/frontend:${{ github.sha }}
 
-      - name: Run Trivy scan for API
+      - name: Generate Trivy SARIF for API
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: localhost:5000/api:${{ github.sha }}
-          format: table
-          severity: CRITICAL
-          exit-code: 1
+          format: sarif
+          output: trivy-api.sarif
+          scanners: vuln
+          exit-code: 0
 
-      - name: Run Trivy scan for worker
+      - name: Generate Trivy SARIF for worker
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: localhost:5000/worker:${{ github.sha }}
-          format: table
-          severity: CRITICAL
-          exit-code: 1
+          format: sarif
+          output: trivy-worker.sarif
+          scanners: vuln
+          exit-code: 0
 
-      - name: Run Trivy scan for frontend
+      - name: Generate Trivy SARIF for frontend
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: localhost:5000/frontend:${{ github.sha }}
-          format: table
-          severity: CRITICAL
-          exit-code: 1
+          format: sarif
+          output: trivy-frontend.sarif
+          scanners: vuln
+          exit-code: 0
 
       - name: Upload SARIF artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: trivy-sarif-reports
@@ -178,6 +182,33 @@ jobs:
             trivy-api.sarif
             trivy-worker.sarif
             trivy-frontend.sarif
+
+      - name: Enforce no CRITICAL vulnerabilities in API
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: localhost:5000/api:${{ github.sha }}
+          format: table
+          scanners: vuln
+          severity: CRITICAL
+          exit-code: 1
+
+      - name: Enforce no CRITICAL vulnerabilities in worker
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: localhost:5000/worker:${{ github.sha }}
+          format: table
+          scanners: vuln
+          severity: CRITICAL
+          exit-code: 1
+
+      - name: Enforce no CRITICAL vulnerabilities in frontend
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: localhost:5000/frontend:${{ github.sha }}
+          format: table
+          scanners: vuln
+          severity: CRITICAL
+          exit-code: 1
 
   integration-test:
     runs-on: ubuntu-latest
