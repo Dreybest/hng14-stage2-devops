@@ -45,6 +45,7 @@ def test_get_job_returns_404_when_missing(monkeypatch):
         "detail": "Job not found"
     }
 
+
 def test_health_check_returns_ok(monkeypatch):
     mock_redis = MagicMock()
     mock_redis.ping.return_value = True
