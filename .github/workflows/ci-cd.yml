@@ -158,8 +158,7 @@ jobs:
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: localhost:5000/worker:${{ github.sha }}
-          format: sarif
-          output: trivy-worker.sarif
+          format: table
           severity: CRITICAL
           exit-code: 1
 
@@ -167,8 +166,7 @@ jobs:
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: localhost:5000/frontend:${{ github.sha }}
-          format: sarif
-          output: trivy-frontend.sarif
+          format: table
           severity: CRITICAL
           exit-code: 1
 
